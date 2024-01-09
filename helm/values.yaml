@@ -1,0 +1,32 @@
+prometheus:
+  enabled: true
+  server:
+    persistentVolume:
+      enabled: false
+  alertmanager:
+    enabled: true
+    persistentVolume:
+      enabled: false
+    service:
+      type: NodePort
+      nodePort: 30012
+
+loki:
+  enabled: true
+
+promtail:
+  enabled: true
+  config:
+    clients:
+      - url: http://monitoring-loki.monitoring:3100/loki/api/v1/push
+
+grafana:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 30010
+
+# kubectl create namespace monitoring
+# helm delete monitoring --namespace=monitoring
+# helm install --values values.yaml monitoring --namespace=monitoring grafana/loki-stack
+# helm upgrade --values values.yaml monitoring --namespace=monitoring grafana/loki-stack
