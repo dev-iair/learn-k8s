@@ -9,10 +9,25 @@ prometheus:
       enabled: false
     service:
       type: NodePort
-      nodePort: 30012
+      nodePort: 30021
+    # cluster:
+    #   listenAddress:
 
 loki:
   enabled: true
+  config:
+    ruler:
+      enable_api: true
+      storage:
+        type: local
+        local:
+          directory: /tmp/loki/rules
+      rule_path: /tmp/loki/rules-temp
+      alertmanager_url: http://monitoring-prometheus-alertmanager.monitoring
+      external_url: http://192.168.110.12:30021
+      ring:
+        kvstore:
+          store: inmemory
 
 promtail:
   enabled: true
@@ -24,7 +39,9 @@ grafana:
   enabled: true
   service:
     type: NodePort
-    nodePort: 30010
+    nodePort: 30020
+  adminUser: admin
+  adminPassword: admin1@#$
 
 # kubectl create namespace monitoring
 # helm delete monitoring --namespace=monitoring

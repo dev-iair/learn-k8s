@@ -47,7 +47,7 @@ spec:
     - protocol: TCP
       port: 5000
       targetPort: 5000
-      nodePort: 30005
+      nodePort: 30011
 
 ---
 
@@ -79,7 +79,7 @@ spec:
             - name: REGISTRY_HTTP_HEADERS_Access-Control-Allow-Credentials
               value: "[true]"
             - name: REGISTRY_HTTP_HEADERS_Access-Control-Allow-Headers
-              value: "['Authorization,Accept,Cache-Control']"
+              value: "['Authorization','Accept','Cache-Control']"
             - name: REGISTRY_HTTP_HEADERS_Access-Control-Expose-Headers
               value: "['Docker-Content-Digest']"
             - name: REGISTRY_STORAGE_DELETE_ENABLED
@@ -107,7 +107,7 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30001
+      nodePort: 30010
 
 ---
 
