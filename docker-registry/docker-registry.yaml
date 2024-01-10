@@ -8,7 +8,7 @@ metadata:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: registry-data-pv
+  name: registry-pv
   namespace: docker-registry
 spec:
   capacity:
@@ -23,7 +23,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: registry-data-pvc
+  name: registry-pvc
   namespace: docker-registry
 spec:
   accessModes:
@@ -85,12 +85,12 @@ spec:
             - name: REGISTRY_STORAGE_DELETE_ENABLED
               value: "true"
           volumeMounts:
-            - name: registry-data
+            - name: registry-pv
               mountPath: /var/lib/registry
       volumes:
-        - name: registry-data
+        - name: registry-pv
           persistentVolumeClaim:
-            claimName: registry-data-pvc
+            claimName: registry-pvc
 
 ---
 
