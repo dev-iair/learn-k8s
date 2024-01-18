@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-alertmanager-pv
+  namespace: monitoring
+spec:
+  capacity:
+    storage: 2Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /workspace/k8s/helm/loki-stack-prometheus/alertmanager-data

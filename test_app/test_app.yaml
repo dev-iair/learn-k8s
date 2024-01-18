@@ -1,0 +1,21 @@
+#set deployment yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app
+  namespace: test
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: test-app
+  template:
+    metadata:
+      labels:
+        app: test-app
+    spec:
+      containers:
+      - name: test-app
+        image: 192.168.110.12:30011/test-app:1.2
+        ports:
+        - containerPort: 80

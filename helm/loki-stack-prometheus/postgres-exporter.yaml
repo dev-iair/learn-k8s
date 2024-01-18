@@ -1,0 +1,10 @@
+prometheus-postgres-exporter:
+  enabled: true
+  config:
+    datasource:
+      host: postgres.postgres
+      user: admin
+      password: admin1@#$
+      port: "5432"
+      database: 'postgres'
+      sslmode: disable

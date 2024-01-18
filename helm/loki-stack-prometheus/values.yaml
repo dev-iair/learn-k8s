@@ -5,13 +5,9 @@ prometheus:
       enabled: false
   alertmanager:
     enabled: true
-    persistentVolume:
-      enabled: false
     service:
       type: NodePort
       nodePort: 30021
-    # cluster:
-    #   listenAddress:
 
 loki:
   enabled: true
@@ -24,7 +20,6 @@ loki:
           directory: /tmp/loki/rules
       rule_path: /tmp/loki/rules-temp
       alertmanager_url: http://monitoring-prometheus-alertmanager.monitoring
-      external_url: http://192.168.110.12:30021
       ring:
         kvstore:
           store: inmemory
