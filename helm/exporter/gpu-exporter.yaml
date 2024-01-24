@@ -1,0 +1,16 @@
+# helm install gpu-exporter --values gpu-exporter.yaml -n monitoring utkuozdemir/nvidia-gpu-exporter
+serviceMonitor:
+  enabled: true
+  additionalLabels: {
+    release: prom-stack
+  }
+  scheme: http
+  bearerTokenFile:
+  interval:
+  tlsConfig: {}
+  proxyUrl: ""
+  relabelings: []
+  metricRelabelings: []
+  scrapeTimeout: 10s
+  endpoints:
+    port: http
