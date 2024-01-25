@@ -1,4 +1,5 @@
 # helm install gpu-exporter --values gpu-exporter.yaml -n monitoring utkuozdemir/nvidia-gpu-exporter
+# helm upgrade gpu-exporter --values gpu-exporter.yaml -n monitoring utkuozdemir/nvidia-gpu-exporter
 serviceMonitor:
   enabled: true
   additionalLabels: {

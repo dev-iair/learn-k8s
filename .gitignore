@@ -1,1 +1,2 @@
 docker-registry/registry-data
+helm/prometheus-stack/grafana-data
