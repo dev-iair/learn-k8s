@@ -2,20 +2,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-app
-  namespace: test
+  name: cctv-app
+  namespace: app
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: test-app
+      app: cctv-app
   template:
     metadata:
       labels:
-        app: test-app
+        app: cctv-app
     spec:
       containers:
-      - name: test-app
-        image: 192.168.110.12:30011/test-app:1.2
+      - name: cctv-app
+        image: 192.168.110.12:30011/yolo-dev:0.3
+        command: ["/bin/python3","/app/cctv_detect.py"]
         ports:
         - containerPort: 80
+        resources:
+          limits:
+            nvidia.com/gpu: 1
