@@ -16,8 +16,8 @@ spec:
     spec:
       containers:
       - name: cctv-app
-        image: 192.168.110.12:30011/yolo-dev:0.3
-        command: ["/bin/python3","/app/cctv_detect.py"]
+        image: 192.168.110.12:30011/yolo-dev:0.5
+        command: ["/bin/python3","/workspace/extract_cctv.py"]
         ports:
         - containerPort: 80
         resources:
