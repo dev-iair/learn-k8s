@@ -10,13 +10,6 @@
     #Set Hostname with inventory.ini Hostname
     hostnamectl set-hostname {{hostname}}
     ```
-    ```ini
-    #Google DNS
-    DNS=8.8.8.8
-    ```
-    ```bash
-    systemctl restart systemd-resolved
-    ```
 
 </br>
 </br>

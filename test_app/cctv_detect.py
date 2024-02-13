@@ -48,7 +48,7 @@ def get_frame(no, frame_dict):
         frame_dict[no] = frame
 
 def detecting(cctvs, frame_dict):
-    model = YOLO('./yolov8s-coco.pt')
+    model = YOLO('/app/yolov8s-coco.pt')
 
     def object_count(data):
         temp_dict = dict()

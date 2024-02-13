@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  app:
+    image: 192.168.2.100:30011/cctv-app:0.1
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+    restart: always
