@@ -12,7 +12,7 @@ metadata:
   namespace: docker-registry
 spec:
   capacity:
-    storage: 32Gi
+    storage: 64Gi
   accessModes:
     - ReadWriteOnce
   hostPath:
@@ -30,7 +30,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 32Gi
+      storage: 64Gi
 
 ---
 
