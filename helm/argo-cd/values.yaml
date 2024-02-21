@@ -1,6 +1,6 @@
 ## Argo CD configuration
 ## Ref: https://github.com/argoproj/argo-cd
-##
+## helm install argocd --values argo-cd.yaml argo/argo-cd -n argocd
 
 # -- Provide a name in place of `argocd`
 nameOverride: argocd
@@ -1598,7 +1598,7 @@ server:
   imagePullSecrets: []
 
   # -- Additional command line arguments to pass to Argo CD server
-  extraArgs: [--rootpath=/argocd]
+  # extraArgs: [--rootpath=/argocd]
 
   # -- Environment variables to pass to Argo CD server
   env: []
@@ -1984,16 +1984,16 @@ server:
     }
       # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
       # nginx.ingress.kubernetes.io/ssl-passthrough: "true"
-
+    
     # -- Defines which ingress controller will implement the resource
-    ingressClassName: "nginx"
+    ingressClassName: "argocd-ingress"
 
     # -- Argo CD server hostname
     ## NOTE: Hostname must be provided if Ingress is enabled
     hostname: 
 
     # -- The path to Argo CD server
-    path: /argocd
+    path: /
 
     # -- Ingress path type. One of `Exact`, `Prefix` or `ImplementationSpecific`
     pathType: Prefix
@@ -2022,15 +2022,16 @@ server:
 
     # -- Additional ingress rules
     # @default -- `[]` (See [values.yaml])
-    extraRules: []
-      # - host: example.example.com
-      #   http:
-      #       path: /
-      #       backend:
-      #         service:
-      #           name: example-svc
-      #           port:
-      #             name: http
+    extraRules:
+      - http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: argocd-server
+                  port:
+                    number: 80
 
     # -- Additional TLS configuration
     # @default -- `[]` (See [values.yaml])
@@ -2096,7 +2097,7 @@ server:
 
     # -- Argo CD server hostname for dedicated [gRPC-ingress]
     # @default -- `""` (defaults to grpc.`server.ingress.hostname`)
-    hostname: ""
+    hostname: 
 
     # -- Argo CD server ingress path for dedicated [gRPC-ingress]
     path: /
