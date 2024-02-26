@@ -1,0 +1,15 @@
+stages:
+  - dockerbuild-push
+
+package:
+  image: docker:latest
+  stage: dockerbuild-push
+  services:
+    - docker:dind
+  before_script:
+    - docker login $REGISTRY -u $GITLAB_USER -p $GITLAB_PASSWORD
+  script:
+    - docker build -t $REGISTRY/$PROJECT/$REPOSITORY:$TAG . 
+    - docker push $REGISTRY/$PROJECT/$REPOSITORY:$TAG
+  after_script:
+    - docker logout
