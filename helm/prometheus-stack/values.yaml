@@ -1,6 +1,7 @@
 # Default values for kube-prometheus-stack.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+# helm install prometheus-stack --values prometheus-stack.yaml prometheus-community/kube-prometheus-stack -n monitoring
 
 ## Provide a name in place of kube-prometheus-stack for `app:` labels
 ##
@@ -231,6 +232,7 @@ windowsMonitoring:
 prometheus-windows-exporter:
   ## Enable ServiceMonitor and set Kubernetes label to use as a job label
   ##
+  enabled: false
   prometheus:
     monitor:
       enabled: false
@@ -380,7 +382,7 @@ alertmanager:
 
     # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
     # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
-    # ingressClassName: nginx
+    ingressClassName: monitoring-ingress
 
     annotations: {}
 
@@ -399,8 +401,8 @@ alertmanager:
 
     ## Paths to use for ingress rules - one path should match the alertmanagerSpec.routePrefix
     ##
-    paths: []
-    # - /
+    paths:
+      - /alertmanager
 
     ## For Kubernetes >= 1.18 you should specify the pathType (determines how Ingress paths should be matched)
     ## See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#better-path-matching-with-path-types
@@ -746,7 +748,7 @@ alertmanager:
 
     ## The external URL the Alertmanager instances will be available under. This is necessary to generate correct URLs. This is necessary if Alertmanager is not served from root of a DNS name. string  false
     ##
-    externalUrl:
+    externalUrl: 
 
     ## The route prefix Alertmanager registers HTTP handlers for. This is useful, if using ExternalURL and a proxy is rewriting HTTP routes of a request, and the actual ExternalURL is still true,
     ## but the server serves requests under a different route prefix. For example for use with kubectl proxy.
@@ -936,9 +938,9 @@ grafana:
   }
   
   grafana.ini:
-    server:
-      root_url: http://192.168.2.100:30080/grafana
-      serve_from_sub_path: true
+    # server:
+    #   root_url: http://192.168.2.100:30040/grafana
+    #   serve_from_sub_path: true
     panels:
       disable_sanitize_html: true
       
@@ -980,11 +982,12 @@ grafana:
     ## IngressClassName for Grafana Ingress.
     ## Should be provided if Ingress is enable.
     ##
-    ingressClassName: nginx
+    # ingressClassName: monitoring-ingress
 
     ## Annotations for Grafana Ingress
     ##
-    annotations: {}
+    annotations:
+      # cert-manager.io/cluster-issuer: grafana-issuer
       # kubernetes.io/ingress.class: nginx
       # kubernetes.io/tls-acme: "true"
 
@@ -997,18 +1000,20 @@ grafana:
     ##
     # hosts:
     #   - grafana.domain.com
-    hosts: []
+    hosts:
+      - grafana-192-168-2-100.traefik.me
 
     ## Path for grafana ingress
-    path: /grafana
+    # path: /grafana
+    path: /
 
     ## TLS configuration for grafana Ingress
     ## Secret must be manually created in the namespace
     ##
-    tls: []
-    # - secretName: grafana-general-tls
-    #   hosts:
-    #   - grafana.example.com
+    tls:
+      - secretName: grafana-tls
+        hosts:
+        - grafana-192-168-2-100.traefik.me
 
   # # To make Grafana persistent (Using Statefulset)
   # #
@@ -1046,7 +1051,7 @@ grafana:
 
       ## URL of prometheus datasource
       ##
-      # url: http://prometheus-stack-prometheus:9090/
+      url: http://prometheus-stack-kube-prom-prometheus:9090
 
       ## Prometheus request timeout in seconds
       # timeout: 30
@@ -1119,7 +1124,7 @@ grafana:
 
     # Path to use for scraping metrics. Might be different if server.root_url is set
     # in grafana.ini
-    path: "http://192.168.2.100:30080/grafana/metrics"
+    # path: "http://192.168.2.100:30040/grafana/metrics"
 
     #  namespace: monitoring  (defaults to use the namespace this chart is deployed to)
 
@@ -2094,7 +2099,7 @@ prometheusOperator:
   ## Prometheus-Operator v0.39.0 and later support TLS natively.
   ##
   tls:
-    enabled: true
+    enabled: false
     # Value must match version names from https://golang.org/pkg/crypto/tls/#pkg-constants
     tlsMinVersion: VersionTLS13
     # The default webhook port is 10250 in order to work out-of-the-box in GKE private clusters and avoid adding firewall rules.
@@ -2141,7 +2146,7 @@ prometheusOperator:
       ## Prometheus-Operator v0.39.0 and later support TLS natively.
       ##
       tls:
-        enabled: true
+        enabled: false
         # Value must match version names from https://golang.org/pkg/crypto/tls/#pkg-constants
         tlsMinVersion: VersionTLS13
         # The default webhook port is 10250 in order to work out-of-the-box in GKE private clusters and avoid adding firewall rules.
@@ -2193,6 +2198,7 @@ prometheusOperator:
         ## Ref: https://kubernetes.io/docs/user-guide/services/#external-ips
         ##
         externalIPs: []
+
 
       # ## Labels to add to the operator webhook deployment
       # ##

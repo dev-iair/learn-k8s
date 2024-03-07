@@ -37,11 +37,9 @@ metadata:
   name: kubernetes-dashboard
   namespace: kubernetes-dashboard
 spec:
-  type: NodePort
   ports:
-    - port: 443
-      targetPort: 8443
-      nodePort: 30000
+    - port: 80
+      targetPort: 9090
   selector:
     k8s-app: kubernetes-dashboard
 
@@ -192,14 +190,17 @@ spec:
           type: RuntimeDefault
       containers:
         - name: kubernetes-dashboard
-          image: kubernetesui/dashboard:v2.6.1
+          image: kubernetesui/dashboard:v2.7.0
           imagePullPolicy: Always
           ports:
-            - containerPort: 8443
+            - containerPort: 9090
               protocol: TCP
           args:
-            - --auto-generate-certificates
+            # - --auto-generate-certificates
             - --namespace=kubernetes-dashboard
+            - --enable-insecure-login
+            - --insecure-bind-address=0.0.0.0
+            - --token-ttl=0
             # Uncomment the following line to manually specify Kubernetes API server Host
             # If not specified, Dashboard will attempt to auto discover the API server and connect
             # to it. Uncomment only if the default does not work.
@@ -212,9 +213,9 @@ spec:
               name: tmp-volume
           livenessProbe:
             httpGet:
-              scheme: HTTPS
+              scheme: HTTP
               path: /
-              port: 8443
+              port: 9090
             initialDelaySeconds: 30
             timeoutSeconds: 30
           securityContext:
@@ -230,6 +231,7 @@ spec:
           emptyDir: {}
       serviceAccountName: kubernetes-dashboard
       nodeSelector:
+        "kubernetes.io/os": linux
         "role": main
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
@@ -299,6 +301,7 @@ spec:
       serviceAccountName: kubernetes-dashboard
       nodeSelector:
         "kubernetes.io/os": linux
+        "role": main
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
@@ -306,6 +309,32 @@ spec:
       volumes:
         - name: tmp-volume
           emptyDir: {}
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard-ingress
+  namespace: kubernetes-dashboard
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: dashboard-192-168-2-100.traefik.me
+      http:
+        paths:
+          - pathType: Prefix
+            backend:
+              service:
+                name: kubernetes-dashboard
+                port:
+                  number: 80
+            path: /
+  # This section is only required if TLS is to be enabled for the Ingress
+  tls:
+    - hosts:
+      - dashboard-192-168-2-100.traefik.me
+      secretName: dashboard-tls
 
 ---
 

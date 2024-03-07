@@ -60,35 +60,47 @@ global:
     allowClusterRoles: true
   ## https://docs.gitlab.com/charts/charts/globals#configure-host-settings
   hosts:
-    domain: 
-    hostSuffix: 
+    domain: traefik.me
+    hostSuffix: 192-168-2-100
     https: false
     externalIP:
     ssh: ~
-    gitlab: {}
-    minio: {}
-    registry: {}
-    tls: {}
-    smartcard: {}
-    kas: {}
-    pages: {}
+    gitlab: {
+      https: false
+    }
+    minio: {
+      https: false
+    }
+    registry: {
+      https: false
+    }
+    tls: {
+      https: false
+    }
+    smartcard: {
+      https: false
+    }
+    kas: {
+      https: false
+    }
+    pages: {
+      https: false
+    }
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
   ingress:
     apiVersion: ""
     configureCertmanager: false
     useNewIngressForCerts: false
-    provider: nginx
-    class: gitlab-ingress
+    provider: traefik
+    class: traefik
     annotations: {}
     enabled: true
-    tls: {}
-    #   enabled: true
-    #   secretName:
-    host: ""
+    tls:
+      enabled: true
+      secretName: gitlab-tls
     path: /
     pathType: Prefix
-
 
   # Override the API version to use for HorizontalPodAutoscaler
   hpa:
@@ -226,7 +238,7 @@ global:
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-minio-settings
   minio:
-    enabled: false
+    enabled: true
     credentials: {}
       # secret:
 
@@ -339,7 +351,7 @@ global:
 
     ## https://docs.gitlab.com/charts/charts/globals#lfs-artifacts-uploads-packages-external-mr-diffs-and-dependency-proxy
     object_store:
-      enabled: true
+      enabled: false
       proxy_download: true
       storage_options: {}
         # server_side_encryption:
@@ -348,28 +360,28 @@ global:
         # secret:
         # key:
     lfs:
-      enabled: false
+      enabled: true
       proxy_download: true
       bucket: git-lfs
       connection: {}
         # secret:
         # key:
     artifacts:
-      enabled: false
+      enabled: true
       proxy_download: true
       bucket: gitlab-artifacts
       connection: {}
         # secret:
         # key:
     uploads:
-      enabled: false
+      enabled: true
       proxy_download: true
       bucket: gitlab-uploads
       connection: {}
         # secret:
         # key:
     packages:
-      enabled: false
+      enabled: true
       proxy_download: true
       bucket: gitlab-packages
       connection: {}
@@ -589,7 +601,7 @@ global:
 
   ## https://docs.gitlab.com/charts/charts/gitlab/kas/
   kas:
-    enabled: false
+    enabled: true
     service:
       apiExternalPort: 8153 # port for connections from the GitLab backend
     tls:
@@ -660,7 +672,7 @@ global:
       # events: {}
 
     # Settings utilized by other services referencing registry:
-    enabled: false
+    enabled: true
     host:
     # port: 443
     api:
@@ -888,7 +900,7 @@ upgradeCheck:
 ## Installation & configuration of jetstack/cert-manager
 ## See requirements.yaml for current version
 certmanager:
-  installCRDs: false
+  installCRDs: true
   nameOverride: certmanager
   # Install cert-manager chart. Set to false if you already have cert-manager
   # installed or if you are not using cert-manager.
@@ -903,64 +915,6 @@ certmanager:
 ## Installation & configuration of charts/ingress-nginx:
 nginx-ingress: &nginx-ingress
   enabled: false
-  tcpExternalConfig: "true"
-  controller: &nginx-ingress-controller
-    addHeaders:
-      Referrer-Policy: strict-origin-when-cross-origin
-    config: &nginx-ingress-controller-config
-      annotation-value-word-blocklist: "load_module,lua_package,_by_lua,location,root,proxy_pass,serviceaccount,{,},',\""
-      hsts: "true"
-      hsts-include-subdomains: "false"
-      hsts-max-age: "63072000"
-      server-name-hash-bucket-size: "256"
-      use-http2: "true"
-      ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
-      ssl-protocols: "TLSv1.3 TLSv1.2"
-      server-tokens: "false"
-      # Configure smaller defaults for upstream-keepalive-*, see https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration
-      upstream-keepalive-connections: 100 # Limit of 100 held-open connections
-      upstream-keepalive-time:        30s # 30 second limit for connection reuse
-      upstream-keepalive-timeout:       5 # 5 second timeout to hold open idle connections
-      upstream-keepalive-requests:   1000 # 1000 requests per connection, before recycling
-
-    service:
-      externalTrafficPolicy: "Local"
-    ingressClassByName: false
-    ingressClassResource:
-      name: '{{ include "ingress.class.name" $ | quote }}'
-    resources:
-      requests:
-        cpu: 100m
-        memory: 100Mi
-    publishService:
-      enabled: true
-    replicaCount: 2
-    minAvailable: 1
-    scope:
-      enabled: true
-    metrics:
-      enabled: true
-      service:
-        annotations:
-          gitlab.com/prometheus_scrape: "true"
-          gitlab.com/prometheus_port: "10254"
-          prometheus.io/scrape: "true"
-          prometheus.io/port: "10254"
-    admissionWebhooks:
-      enabled: false
-  defaultBackend:
-    resources:
-      requests:
-        cpu: 5m
-        memory: 5Mi
-  rbac:
-    create: true
-    # Needed for k8s 1.20 and 1.21
-    # https://github.com/kubernetes/ingress-nginx/issues/7510
-    # https://github.com/kubernetes/ingress-nginx/issues/7519
-    scope: false
-  serviceAccount:
-    create: true
 
 # Ingress controller to handle requests forwarded from other Geo sites.
 # Configuration differences compared to the main nginx ingress:
@@ -969,178 +923,14 @@ nginx-ingress: &nginx-ingress
 nginx-ingress-geo:
   <<: *nginx-ingress
   enabled: false
-  controller:
-    <<: *nginx-ingress-controller
-    config:
-      <<: *nginx-ingress-controller-config
-      # Pass incoming X-Forwarded-* headers to upstream. Required to handle requests
-      # from other Geo sites.
-      # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/#use-forwarded-headers
-      use-forwarded-headers: true
-    electionID: ingress-controller-leader-geo
-    ingressClassResource:
-      name: '{{ include "gitlab.geo.ingress.class.name" $ | quote }}'
-      controllerValue: 'k8s.io/nginx-ingress-geo'
-  # A pre-defined/static external IP can be configured with global.hosts.externalGeoIP.
-  externalIpTpl: '{{ .Values.global.hosts.externalGeoIP }}'
 
 haproxy:
   install: false
-  controller:
-    service:
-      type: LoadBalancer
-      tcpPorts:
-        - name: ssh
-          port: 22
-          targetPort: 22
-    extraArgs:
-      - --configmap-tcp-services=$(POD_NAMESPACE)/$(POD_NAMESPACE)-haproxy-tcp
 
 ## Installation & configuration of stable/prometheus
 ## See requirements.yaml for current version
 prometheus:
   install: false
-  rbac:
-    create: true
-  alertmanager:
-    enabled: false
-  alertmanagerFiles:
-    alertmanager.yml: {}
-  kubeStateMetrics:
-    enabled: false
-  nodeExporter:
-    enabled: false
-  pushgateway:
-    enabled: false
-  server:
-    retention: 15d
-    strategy:
-      type: Recreate
-    image:
-      tag: v2.38.0
-  serverFiles:
-    prometheus.yml:
-      scrape_configs:
-        - job_name: prometheus
-          static_configs:
-            - targets:
-                - localhost:9090
-        - job_name: kubernetes-apiservers
-          kubernetes_sd_configs:
-            - role: endpoints
-          scheme: https
-          tls_config:
-            ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-            insecure_skip_verify: true
-          bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-          relabel_configs:
-            - source_labels:
-                [
-                  __meta_kubernetes_namespace,
-                  __meta_kubernetes_service_name,
-                  __meta_kubernetes_endpoint_port_name,
-                ]
-              action: keep
-              regex: default;kubernetes;https
-        - job_name: kubernetes-pods
-          kubernetes_sd_configs:
-            - role: pod
-          relabel_configs:
-            - source_labels:
-                [__meta_kubernetes_pod_annotation_gitlab_com_prometheus_scrape]
-              action: keep
-              regex: true
-            - source_labels:
-                [__meta_kubernetes_pod_annotation_gitlab_com_prometheus_scheme]
-              action: replace
-              regex: (https?)
-              target_label: __scheme__
-            - source_labels:
-                [__meta_kubernetes_pod_annotation_gitlab_com_prometheus_path]
-              action: replace
-              target_label: __metrics_path__
-              regex: (.+)
-            - source_labels:
-                [
-                  __address__,
-                  __meta_kubernetes_pod_annotation_gitlab_com_prometheus_port,
-                ]
-              action: replace
-              regex: ([^:]+)(?::\d+)?;(\d+)
-              replacement: $1:$2
-              target_label: __address__
-            - action: labelmap
-              regex: __meta_kubernetes_pod_label_(.+)
-            - source_labels: [__meta_kubernetes_namespace]
-              action: replace
-              target_label: kubernetes_namespace
-            - source_labels: [__meta_kubernetes_pod_name]
-              action: replace
-              target_label: kubernetes_pod_name
-        - job_name: kubernetes-service-endpoints
-          kubernetes_sd_configs:
-            - role: endpoints
-          relabel_configs:
-            - action: keep
-              regex: true
-              source_labels:
-                - __meta_kubernetes_service_annotation_gitlab_com_prometheus_scrape
-            - action: replace
-              regex: (https?)
-              source_labels:
-                - __meta_kubernetes_service_annotation_gitlab_com_prometheus_scheme
-              target_label: __scheme__
-            - action: replace
-              regex: (.+)
-              source_labels:
-                - __meta_kubernetes_service_annotation_gitlab_com_prometheus_path
-              target_label: __metrics_path__
-            - action: replace
-              regex: ([^:]+)(?::\d+)?;(\d+)
-              replacement: $1:$2
-              source_labels:
-                - __address__
-                - __meta_kubernetes_service_annotation_gitlab_com_prometheus_port
-              target_label: __address__
-            - action: labelmap
-              regex: __meta_kubernetes_service_label_(.+)
-            - action: replace
-              source_labels:
-                - __meta_kubernetes_namespace
-              target_label: kubernetes_namespace
-            - action: replace
-              source_labels:
-                - __meta_kubernetes_service_name
-              target_label: kubernetes_name
-            - action: replace
-              source_labels:
-                - __meta_kubernetes_pod_node_name
-              target_label: kubernetes_node
-        - job_name: kubernetes-services
-          metrics_path: /probe
-          params:
-            module: [http_2xx]
-          kubernetes_sd_configs:
-            - role: service
-          relabel_configs:
-            - source_labels:
-                [
-                  __meta_kubernetes_service_annotation_gitlab_com_prometheus_probe,
-                ]
-              action: keep
-              regex: true
-            - source_labels: [__address__]
-              target_label: __param_target
-            - target_label: __address__
-              replacement: blackbox
-            - source_labels: [__param_target]
-              target_label: instance
-            - action: labelmap
-              regex: __meta_kubernetes_service_label_(.+)
-            - source_labels: [__meta_kubernetes_namespace]
-              target_label: kubernetes_namespace
-            - source_labels: [__meta_kubernetes_service_name]
-              target_label: kubernetes_name
 
 ## Configuration of Redis
 ## https://docs.gitlab.com/charts/architecture/decisions#redis
@@ -1155,7 +945,7 @@ redis:
   cluster:
     enabled: false
   metrics:
-    enabled: true
+    enabled: false
 
 ## Installation & configuration of stable/prostgresql
 ## See requirements.yaml for current version
@@ -1184,7 +974,7 @@ postgresql:
     podAnnotations:
       postgresql.gitlab/init-revision: "1"
   metrics:
-    enabled: true
+    enabled: false
     service:
       annotations:
         prometheus.io/scrape: "true"
@@ -1198,8 +988,8 @@ postgresql:
 ## Installation & configuration charts/registry
 ## https://docs.gitlab.com/charts/architecture/decisions#registry
 ## https://docs.gitlab.com/charts/charts/registry/
-registry:
-  enabled: false
+# registry:
+#   enabled: false
 
 ## Automatic shared secret generation
 ## https://docs.gitlab.com/charts/installation/secrets
@@ -1239,6 +1029,7 @@ shared-secrets:
 ## See requirements.yaml for current version
 gitlab-runner:
   install: true
+  gitlabUrl: 'http://gitlab-webservice-default:8181'
   rbac:
     create: true
   runners:
@@ -1246,18 +1037,27 @@ gitlab-runner:
     # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
     # The parent/GitLab chart overrides the template to render the actual secret name.
     secret: "nonempty"
+    config: |
+      [[runners]]
+        [runners.kubernetes]
+        image = "ubuntu:22.04"
+        {{- if .Values.global.minio.enabled }}
+        [runners.cache]
+          Type = "s3"
+          Path = "gitlab-runner"
+          Shared = true
+          [runners.cache.s3]
+            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
+            BucketName = "runner-cache"
+            BucketLocation = "us-east-1"
+            Insecure = false
+        {{ end }}
   podAnnotations:
     gitlab.com/prometheus_scrape: "true"
     gitlab.com/prometheus_port: 9252
 
-
 traefik:
   install: false
-  ports:
-    gitlab-shell:
-      expose: true
-      port: 2222
-      exposedPort: 22
 
 ## Settings for individual sub-charts under GitLab
 ## Note: Many of these settings are configurable via globals
@@ -1275,13 +1075,15 @@ gitlab:
   #   webservice:
   #     enabled: false
   ## https://docs.gitlab.com/charts/charts/gitlab/sidekiq
-  #   sidekiq:
-  #     enabled: false
+  sidekiq:
+    enabled: false
   ## https://docs.gitlab.com/charts/charts/gitlab/gitaly
   #   gitaly:
   ## https://docs.gitlab.com/charts/charts/gitlab/gitlab-shell
-  #   gitlab-shell:
-  #     enabled: false
+  gitlab-exporter:
+    enabled: false
+  gitlab-shell:
+    enabled: false
   ## https://docs.gitlab.com/charts/charts/gitlab/gitlab-pages
   #   gitlab-pages:
   ## https://docs.gitlab.com/charts/charts/gitlab/kas
@@ -1292,13 +1094,3 @@ gitlab:
 ## Installation & configuration of gitlab/gitlab-zoekt
 gitlab-zoekt:
   install: false
-  gateway:
-    basicAuth:
-      enabled: true
-      secretName: '{{ include "gitlab.zoekt.gateway.basicAuth.secretName" $ }}'
-  indexer:
-    internalApi:
-      enabled: true
-      secretName: '{{ include "gitlab.zoekt.indexer.internalApi.secretName" $ }}'
-      secretKey: '{{ include "gitlab.zoekt.indexer.internalApi.secretKey" $ }}'
-      gitlabUrl: '{{ include "gitlab.zoekt.indexer.internalApi.gitlabUrl" $ }}'
