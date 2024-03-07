@@ -62,29 +62,22 @@ global:
   hosts:
     domain: traefik.me
     hostSuffix: 192-168-2-100
-    https: false
+    https: true
     externalIP:
     ssh: ~
     gitlab: {
-      https: false
     }
     minio: {
-      https: false
     }
     registry: {
-      https: false
     }
     tls: {
-      https: false
     }
     smartcard: {
-      https: false
     }
     kas: {
-      https: false
     }
     pages: {
-      https: false
     }
 
   ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
@@ -748,7 +741,7 @@ global:
       certName: "tls.crt"
 
   ## Timezone for containers.
-  time_zone: UTC
+  time_zone: Asia/Seoul
 
   ## Global Service Annotations and Labels
   service:
