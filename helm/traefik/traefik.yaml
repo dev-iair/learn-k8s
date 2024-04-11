@@ -773,11 +773,11 @@ tlsOptions: {}
 # -- TLS Store are created as TLSStore CRDs. This is useful if you want to set a default certificate
 # https://doc.traefik.io/traefik/https/tls/#default-certificate
 # Example:
-# tlsStore:
-#   default:
-#     defaultCertificate:
-#       secretName: tls-cert
-tlsStore: {}
+tlsStore:
+  default:
+    defaultCertificate:
+      secretName: tls-cert
+# tlsStore: {}
 
 service:
   enabled: true
@@ -941,7 +941,6 @@ affinity: {}
 
 # -- nodeSelector is the simplest recommended form of node selection constraint.
 nodeSelector: {
-  role: main
 }
 # -- Tolerations allow the scheduler to schedule pods with matching taints.
 tolerations: []

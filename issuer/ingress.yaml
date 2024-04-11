@@ -1,22 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: traefik-ingress
-  namespace: traefik
+  name: api-model-ingress
+  namespace: ai-pedia
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   ingressClassName: traefik
   rules:
-    - host: traefik-192-168-110-12.traefik.me
+    - host: model-192-168-110-12.nip.io
       http:
         paths:
           - pathType: Prefix
             backend:
               service:
-                name: traefik
+                name: api-model
                 port:
-                  number: 9000
+                  number: 80
             path: /
   # This section is only required if TLS is to be enabled for the Ingress
   tls:
     - hosts:
-      - traefik-192-168-110-12.traefik.me
+      - model-192-168-110-12.nip.io
+      secretName: aipedia-nip-tls

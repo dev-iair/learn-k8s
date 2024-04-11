@@ -769,9 +769,7 @@ alertmanager:
     ## Define which Nodes the Pods are scheduled on.
     ## ref: https://kubernetes.io/docs/user-guide/node-selection/
     ##
-    nodeSelector: {
-      role: main
-    }
+    nodeSelector: {}
 
     ## Define resources requests and limits for single Pods.
     ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
@@ -933,9 +931,7 @@ alertmanager:
 grafana:
   enabled: true
 
-  nodeSelector: {
-    role: main
-  }
+  nodeSelector: {}
   
   grafana.ini:
     # server:
@@ -1001,7 +997,7 @@ grafana:
     # hosts:
     #   - grafana.domain.com
     hosts:
-      - grafana-192-168-2-100.traefik.me
+      - grafana-192-168-110-12.traefik.me
 
     ## Path for grafana ingress
     # path: /grafana
@@ -1011,9 +1007,8 @@ grafana:
     ## Secret must be manually created in the namespace
     ##
     tls:
-      - secretName: grafana-tls
-        hosts:
-        - grafana-192-168-2-100.traefik.me
+      - hosts:
+        - grafana-192-168-110-12.traefik.me
 
   # # To make Grafana persistent (Using Statefulset)
   # #
@@ -1022,7 +1017,7 @@ grafana:
     storageClassName: "local-path"
     accessModes:
       - ReadWriteOnce
-    size: 8Gi
+    size: 4Gi
 
   sidecar:
     dashboards:
@@ -2282,9 +2277,7 @@ prometheusOperator:
       ## Define which Nodes the Pods are scheduled on.
       ## ref: https://kubernetes.io/docs/user-guide/node-selection/
       ##
-      nodeSelector: {
-        role: main
-      }
+      nodeSelector: {}
 
       ## Tolerations for use with node taints
       ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
@@ -2352,9 +2345,7 @@ prometheusOperator:
       #   argocd.argoproj.io/hook: PreSync
       #   argocd.argoproj.io/hook-delete-policy: HookSucceeded
       podAnnotations: {}
-      nodeSelector: {
-        role: main
-      }
+      nodeSelector: {}
       affinity: {}
       tolerations: []
 
@@ -2597,9 +2588,7 @@ prometheusOperator:
   ## Define which Nodes the Pods are scheduled on.
   ## ref: https://kubernetes.io/docs/user-guide/node-selection/
   ##
-  nodeSelector: {
-    role: main
-  }
+  nodeSelector: {}
 
   ## Tolerations for use with node taints
   ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
@@ -3333,9 +3322,7 @@ prometheus:
     ## Define which Nodes the Pods are scheduled on.
     ## ref: https://kubernetes.io/docs/user-guide/node-selection/
     ##
-    nodeSelector: {
-      role: main
-    }
+    nodeSelector: {}
 
     ## Secrets is a list of Secrets in the same namespace as the Prometheus object, which shall be mounted into the Prometheus Pods.
     ## The Secrets are mounted into /etc/prometheus/secrets/. Secrets changes after initial creation of a Prometheus object are not
@@ -4414,9 +4401,7 @@ thanosRuler:
     ## Define which Nodes the Pods are scheduled on.
     ## ref: https://kubernetes.io/docs/user-guide/node-selection/
     ##
-    nodeSelector: {
-      role: main
-    }
+    nodeSelector: {}
 
     ## Define resources requests and limits for single Pods.
     ## ref: https://kubernetes.io/docs/user-guide/compute-resources/

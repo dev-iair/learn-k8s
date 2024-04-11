@@ -232,7 +232,6 @@ spec:
       serviceAccountName: kubernetes-dashboard
       nodeSelector:
         "kubernetes.io/os": linux
-        "role": main
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
@@ -301,7 +300,6 @@ spec:
       serviceAccountName: kubernetes-dashboard
       nodeSelector:
         "kubernetes.io/os": linux
-        "role": main
       # Comment the following tolerations if Dashboard must not be deployed on master
       tolerations:
         - key: node-role.kubernetes.io/master
@@ -320,7 +318,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: dashboard-192-168-2-100.traefik.me
+    - host: dashboard-192-168-110-12.traefik.me
       http:
         paths:
           - pathType: Prefix
@@ -331,10 +329,10 @@ spec:
                   number: 80
             path: /
   # This section is only required if TLS is to be enabled for the Ingress
-  tls:
-    - hosts:
-      - dashboard-192-168-2-100.traefik.me
-      secretName: dashboard-tls
+  # tls:
+  #   - hosts:
+  #     - dashboard-192-168-110-12.traefik.me
+  #     secretName: dashboard-tls
 
 ---
 

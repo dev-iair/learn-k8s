@@ -1,8 +1,6 @@
 # helm install loki-stack --values values.yaml -n monitoring grafana/loki-stack
 loki:
   enabled: true
-  nodeSelector:
-    role: main
   isDefault: true
   url: http://{{(include "loki.serviceName" .)}}:{{ .Values.loki.service.port }}
   readinessProbe:
@@ -21,8 +19,6 @@ loki:
 
 promtail:
   enabled: true
-  nodeSelector:
-    role: main
   config:
     logLevel: info
     serverPort: 3101
