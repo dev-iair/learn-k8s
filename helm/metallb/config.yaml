@@ -17,3 +17,5 @@ metadata:
 spec:
   ipAddressPools:
     - default
+
+# kubectl delete validatingwebhookconfigurations metallb-webhook-configuration
