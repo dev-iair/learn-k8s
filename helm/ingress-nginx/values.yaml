@@ -26,8 +26,8 @@ controller:
     ## for backwards compatibility consider setting the full image url via the repository value below
     ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
     ## repository:
-    tag: "v1.9.6"
-    digest: sha256:1405cc613bd95b2c6edd8b2a152510ae91c7e62aea4698500d23b2145960ab9c
+    tag: "v1.10.0"
+    digest: sha256:42b3f0e5d0846876b1791cd3afeb5f1cbbe4259d6f35651dcc1b5c980925379c
     digestChroot: sha256:7eb46ff733429e0e46892903c7394aff149ac6d284d92b3946f3baf7ff26a096
     pullPolicy: IfNotPresent
     runAsNonRoot: true
@@ -175,9 +175,9 @@ controller:
   maxmindLicenseKey: ""
   # -- Additional command line arguments to pass to Ingress-Nginx Controller
   # E.g. to specify the default SSL certificate you can use
-  extraArgs: {}
-  ## extraArgs:
-  ##   default-ssl-certificate: "<namespace>/<secret_name>"
+  # extraArgs: {}
+  extraArgs:
+    default-ssl-certificate: "nginx/nginx-tls"
   ##   time-buckets: "0.005,0.01,0.025,0.05,0.1,0.25,0.5,1,2.5,5,10"
   ##   length-buckets: "10,20,30,40,50,60,70,80,90,100"
   ##   size-buckets: "10,100,1000,10000,100000,1e+06,1e+07"
@@ -297,7 +297,6 @@ controller:
   ##
   nodeSelector:
     kubernetes.io/os: linux
-    role: main
   ## Liveness and readiness probe values
   ## Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/#container-probes
   ##
@@ -455,7 +454,7 @@ controller:
     labels: {}
     # -- Type of the external controller service.
     # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-    type: NodePort
+    type: LoadBalancer
     # -- Pre-defined cluster internal IP address of the external controller service. Take care of collisions with existing services.
     # This value is immutable. Set once, it can not be changed without deleting and re-creating the service.
     # Ref: https://kubernetes.io/docs/concepts/services-networking/service/#choosing-your-own-ip-address
@@ -513,9 +512,9 @@ controller:
     appProtocol: true
     nodePorts:
       # -- Node port allocated for the external HTTP listener. If left empty, the service controller allocates one from the configured node port range.
-      http: "30080"
+      http: ""
       # -- Node port allocated for the external HTTPS listener. If left empty, the service controller allocates one from the configured node port range.
-      https: "30443"
+      https: ""
       # -- Node port mapping for external TCP listeners. If left empty, the service controller allocates them from the configured node port range.
       # Example:
       # tcp:
@@ -782,8 +781,8 @@ controller:
         ## for backwards compatibility consider setting the full image url via the repository value below
         ## use *either* current default registry/image or repository format or installing chart by providing the values.yaml will fail
         ## repository:
-        tag: v20231226-1a7112e06
-        digest: sha256:25d6a5f11211cc5c3f9f2bf552b585374af287b4debf693cacbe2da47daa5084
+        tag: v1.4.0
+        digest: sha256:44d1d0e9f19c63f58b380c5fddaca7cf22c7cee564adeff365225a5df5ef3334
         pullPolicy: IfNotPresent
       # -- Provide a priority class name to the webhook patching job
       ##

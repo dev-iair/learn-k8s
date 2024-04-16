@@ -1,0 +1,62 @@
+pipeline {
+    agent any
+    environment {
+        registry = 'harbor-192-168-2-200.traefik.me'
+        registryCredential = 'harbor-admin'
+        projectName = 'jenkins-sample'
+
+        gitUrl = '192.168.1.48:9000/app/model-api-server.git'
+        branch = 'jenkins'
+        gitlabCredential = 'github-iair'
+        
+        chartValues = 'chart/values.yaml'
+        djangoVersion = '1.0'
+        nginxVersion = '1.0'
+
+        djangoUpdated = 'true'
+        nginxUpdated = 'true'
+    }
+    stages {
+        stage('Build & Push Docker Image') {
+            steps {
+                script {
+                    container('dind') {
+                        docker.withRegistry("https://${registry}", registryCredential) {
+                            if (nginxUpdated == 'true') {
+                                sh "docker build -f api-nginx.dockerfile -t ${registry}/${projectName}/nginx:${nginxVersion} ."
+                                sh "docker push ${registry}/${projectName}/nginx:${nginxVersion}"
+                            }
+                            if (djangoUpdated == 'true') {
+                                sh "docker build -f api-django.dockerfile -t ${registry}/${projectName}/django:${djangoVersion} ."
+                                sh "docker push ${registry}/${projectName}/django:${djangoVersion}"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        stage('Update Chart Values') {
+            steps {
+                script {
+                    if (djangoUpdated == 'true' || nginxUpdated == 'true') {
+                        withCredentials([usernamePassword(credentialsId: gitlabCredential, usernameVariable: 'GITLAB_USER', passwordVariable: 'GITLAB_PASS')]) {
+                            sh "git checkout ${branch}"
+                        
+                            sh "sed -i '11s/tag: .*/tag: \"${djangoVersion}\"/' ${chartValues}"
+                            sh "sed -i '33s/tag: .*/tag: \"${nginxVersion}\"/' ${chartValues}"
+                            sh "sed -i \"s/djangoUpdated = 'true'/djangoUpdated = 'false'/g\" Jenkinsfile"
+                            sh "sed -i \"s/nginxUpdated = 'true'/nginxUpdated = 'false'/g\" Jenkinsfile"
+
+                            sh "git config --global user.email dev.iair.918@gmail.com"
+                            sh "git config --global user.name iair"
+                            sh "git add ${chartValues}"
+                            sh "git add Jenkinsfile"
+                            sh "git commit -m 'update chart values'"
+                            sh 'git push http://${GITLAB_USER}:${GITLAB_PASS}@${gitUrl} HEAD:${branch}'
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

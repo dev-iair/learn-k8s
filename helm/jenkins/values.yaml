@@ -162,7 +162,7 @@ controller:
   # or `http://` depending on the `tls` configuration.
   # The Protocol can be overwritten by specifying `controller.jenkinsUrlProtocol`.
   # -- Set protocol for Jenkins URL; `https` if `controller.ingress.tls`, `http` otherwise
-  jenkinsUrlProtocol:
+  jenkinsUrlProtocol: https://jenkins-192-168-2-200.traefik.me
 
   # -- Set Jenkins URL if you are not using the ingress definitions provided by the chart
   jenkinsUrl:
@@ -670,7 +670,7 @@ controller:
     # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
     # For Kubernetes v1.19+, use 'networking.k8s.io/v1'
     # -- Ingress API version
-    apiVersion: "extensions/v1beta1"
+    apiVersion: networking.k8s.io/v1
     # -- Ingress labels
     labels: {}
     # -- Ingress annotations
@@ -687,7 +687,7 @@ controller:
 
     # configures the hostname e.g. jenkins.example.com
     # -- Ingress hostname
-    hostName: jenkins-192-168-110-12.traefik.me
+    hostName: jenkins-192-168-2-200.traefik.me
     # -- Hostname to serve assets from
     resourceRootUrl:
     # -- Ingress TLS configuration
@@ -968,7 +968,10 @@ agent:
   # Configure the attributes as they appear in the corresponding Java class for that type
   # https://github.com/jenkinsci/kubernetes-plugin/tree/master/src/main/java/org/csanchez/jenkins/plugins/kubernetes/volumes
   # -- Additional volumes
-  volumes: []
+  volumes:
+    - type: HostPath
+      hostPath: /etc/docker/certs.d
+      mountPath: /etc/docker/certs.d
   # - type: ConfigMap
   #   configMapName: myconfigmap
   #   mountPath: /var/myapp/myconfigmap
@@ -1088,21 +1091,21 @@ agent:
 
   # Containers specified here are added to all agents. Set key empty to remove container from additional agents.
   # -- Add additional containers to the agents
-  additionalContainers: []
-  #  - sideContainerName: dind
-  #    image:
-  #      repository: docker
-  #      tag: dind
-  #    command: dockerd-entrypoint.sh
-  #    args: ""
-  #    privileged: true
-  #    resources:
-  #      requests:
-  #        cpu: 500m
-  #        memory: 1Gi
-  #      limits:
-  #        cpu: 1
-  #        memory: 2Gi
+  additionalContainers:
+   - sideContainerName: dind
+     image:
+       repository: docker
+       tag: dind
+     command: dockerd-entrypoint.sh
+     args: ""
+     privileged: true
+     resources:
+       requests:
+         cpu: 500m
+         memory: 1Gi
+       limits:
+         cpu: 1
+         memory: 2Gi
 
   # Useful when configuring agents only with the podTemplates value, since the default podTemplate populated by values mentioned above will be excluded in the rendered template.
   # -- Disable the default Jenkins Agent configuration

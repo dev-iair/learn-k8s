@@ -102,9 +102,7 @@ global:
   priorityClassName: ""
 
   # -- Default node selector for all components
-  nodeSelector: {
-    "role": "main"
-  }
+  nodeSelector: {}
 
   # -- Default tolerations for all components
   tolerations: []
@@ -1990,7 +1988,7 @@ server:
 
     # -- Argo CD server hostname
     ## NOTE: Hostname must be provided if Ingress is enabled
-    hostname: argocd-192-168-2-100.traefik.me
+    hostname: argocd-192-168-2-200.traefik.me
 
     # -- The path to Argo CD server
     path: /
@@ -2001,10 +1999,7 @@ server:
     # -- Enable TLS configuration for the hostname defined at `server.ingress.hostname`
     ## TLS certificate will be retrieved from a TLS secret `argocd-server-tls`
     ## You can create this secret via `certificate` or `certificateSecret` option
-    tls:
-      - hosts: argocd-192-168-2-100.traefik.me
-        secretName: argocd-tls
-
+    tls: []
     # -- The list of additional hostnames to be covered by ingress record
     # @default -- `[]` (See [values.yaml])
     extraHosts: []
